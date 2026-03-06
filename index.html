@@ -5,11 +5,9 @@
 
 <meta charset="UTF-8">
 
-<title>Deep Sea Monster Generator</title>
+<title>Abyssal Monster Generator</title>
 
 <link rel="stylesheet" href="style.css">
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
 </head>
 
@@ -18,27 +16,22 @@
 <h1>Deep Sea Monster Generator</h1>
 
 <button onclick="generateMonster()">モンスター生成</button>
-<button onclick="copyText()">コピー</button>
-<button onclick="saveImage()">画像保存</button>
 
 <div id="result">
 
 <svg id="silhouetteImage"></svg>
 
-<div class="label">名前</div>
-<div id="name" class="value">---</div>
+<p><b>標本No</b> <span id="specimen"></span></p>
+<p><b>名前</b> <span id="name"></span></p>
+<p><b>体型</b> <span id="silhouette"></span></p>
+<p><b>モチーフ</b> <span id="motif"></span></p>
+<p><b>危険度</b> <span id="danger"></span></p>
+<p><b>サイズ</b> <span id="size"></span></p>
+<p><b>生息深度</b> <span id="depth"></span></p>
+<p><b>特徴</b> <span id="feature"></span></p>
+<p><b>能力</b> <span id="ability"></span></p>
 
-<div class="label">体型</div>
-<div id="silhouette" class="value">---</div>
-
-<div class="label">色</div>
-<div id="color" class="value">---</div>
-
-<div class="label">特徴</div>
-<div id="feature" class="value">---</div>
-
-<div class="label">説明</div>
-<div id="description"></div>
+<p id="description"></p>
 
 </div>
 
@@ -46,4 +39,5 @@
 <script src="script.js"></script>
 
 </body>
+
 </html>
