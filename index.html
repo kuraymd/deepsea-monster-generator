@@ -1,26 +1,46 @@
-
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
+
 <meta charset="UTF-8">
-<title>深海モンスターお題</title>
+
+<title>Deep Sea Monster Generator</title>
+
 <link rel="stylesheet" href="style.css">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
 </head>
 
 <body>
 
-<h1>深海モンスターお題</h1>
+<h1>Deep Sea Monster Generator</h1>
 
-<button onclick="generate()">モンスター生成</button>
+<button onclick="generateMonster()">モンスター生成</button>
+<button onclick="copyText()">コピー</button>
+<button onclick="saveImage()">画像保存</button>
 
-<h2 id="name"></h2>
+<div id="result">
 
-<img id="image">
+<svg id="silhouetteImage"></svg>
 
-<p id="desc"></p>
+<div class="label">名前</div>
+<div id="name" class="value">---</div>
 
-<h3>モチーフ</h3>
-<p id="motif"></p>
+<div class="label">体型</div>
+<div id="silhouette" class="value">---</div>
+
+<div class="label">色</div>
+<div id="color" class="value">---</div>
+
+<div class="label">特徴</div>
+<div id="feature" class="value">---</div>
+
+<div class="label">説明</div>
+<div id="description"></div>
+
+</div>
 
 <script src="creatures.js"></script>
 <script src="script.js"></script>
