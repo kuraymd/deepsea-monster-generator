@@ -155,6 +155,75 @@ border: 1px solid var(–border); border-radius: 6px; background: var(–surface
 @keyframes flicker {
 0%,100%{opacity:1} 92%{opacity:1} 93%{opacity:.6} 94%{opacity:1}
 }
+
+/* 保存ボタン */
+.btn-save {
+display: block; width: 100%; padding: 12px;
+font-family: ‘Noto Serif JP’, serif; font-size: 13px; font-weight: 700;
+letter-spacing: 0.1em; color: var(–gold);
+background: transparent;
+border: 1px solid var(–gold); border-radius: 4px;
+cursor: pointer; margin-top: 12px;
+transition: all 0.3s;
+}
+.btn-save:hover { background: rgba(200,168,75,0.1); box-shadow: 0 0 12px rgba(200,168,75,0.2); }
+.btn-save:active { transform: scale(0.98); }
+.btn-save:disabled { opacity: 0.4; cursor: default; }
+
+/* 標本庫 */
+.archive-section {
+margin-top: 40px; width: 100%;
+}
+.archive-header {
+display: flex; justify-content: space-between; align-items: center;
+margin-bottom: 12px;
+}
+.archive-title {
+font-family: ‘Share Tech Mono’, monospace;
+font-size: 10px; letter-spacing: 4px; color: var(–accent2);
+}
+.archive-count {
+font-family: ‘Share Tech Mono’, monospace;
+font-size: 10px; color: var(–text-dim);
+}
+.archive-empty {
+padding: 24px; text-align: center;
+border: 1px dashed var(–border); border-radius: 6px;
+font-family: ‘Share Tech Mono’, monospace;
+font-size: 10px; color: var(–text-dim); letter-spacing: 2px;
+}
+.archive-list { display: flex; flex-direction: column; gap: 8px; }
+.archive-card {
+background: var(–surface); border: 1px solid var(–border); border-radius: 6px;
+padding: 12px 14px;
+display: flex; justify-content: space-between; align-items: flex-start; gap: 10px;
+}
+.archive-card-info { flex: 1; min-width: 0; }
+.archive-card-name {
+font-size: 14px; font-weight: 700; color: #fff;
+margin-bottom: 4px;
+}
+.archive-card-meta {
+font-family: ‘Share Tech Mono’, monospace;
+font-size: 9px; color: var(–text-dim); letter-spacing: 1px;
+line-height: 1.8;
+}
+.archive-card-wagara {
+font-size: 11px; color: var(–gold); margin-top: 4px;
+}
+.archive-card-danger {
+font-family: ‘Share Tech Mono’, monospace;
+font-size: 10px; font-weight: bold;
+color: var(–danger); border: 1px solid var(–danger);
+padding: 2px 6px; border-radius: 2px; white-space: nowrap;
+flex-shrink: 0;
+}
+.btn-delete {
+background: none; border: none; cursor: pointer;
+color: var(–text-dim); font-size: 16px; padding: 2px 4px;
+transition: color 0.2s; flex-shrink: 0; line-height: 1;
+}
+.btn-delete:hover { color: var(–danger); }
 </style>
 
 </head>
@@ -172,6 +241,18 @@ border: 1px solid var(–border); border-radius: 6px; background: var(–surface
       <div class="placeholder-text">AWAITING SPECIMEN DATA...</div>
     </div>
   </div>
+
+<button class="btn-save" id="btnSave" onclick="saveMonster()" disabled>＋ この標本を標本庫に登録する</button>
+
+  <div class="archive-section">
+    <div class="archive-header">
+      <span class="archive-title">SPECIMEN ARCHIVE — 標本庫</span>
+      <span class="archive-count" id="archiveCount"></span>
+    </div>
+    <div id="archiveList">
+      <div class="archive-empty">NO SPECIMENS REGISTERED</div>
+    </div>
+  </div>
 </div>
 <script>
 const silhouettes = ["クラゲ型","イカ型","タコ型","魚型","ヒトデ型","蛇状型","球体型","浮遊体型"];
@@ -184,6 +265,49 @@ const size = ["30cm","1m","3m","5m","10m","20m"];
 const depth = ["200m","500m","1000m","3000m","6000m","海底"];
 function randomItem(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
 function randomSpecimen(){ return Math.floor(Math.random()*900)+100; }
+
+// ── 標本庫 (localStorage) ──────────────────
+let currentMonster = null; // 現在表示中のモンスターデータ
+
+function saveMonster() {
+if (!currentMonster) return;
+const archive = JSON.parse(localStorage.getItem(‘ihyli_archive’) || ‘[]’);
+// 重複チェック（同じ標本Noは保存しない）
+if (archive.some(m => m.specimen === currentMonster.specimen)) {
+const btn = document.getElementById(‘btnSave’);
+btn.textContent = ‘✔ 登録済みです’;
+btn.disabled = true;
+return;
+}
+archive.unshift(currentMonster); // 新しいものを先頭に
+localStorage.setItem(‘ihyli_archive’, JSON.stringify(archive));
+const btn = document.getElementById(‘btnSave’);
+btn.textContent = ‘✔ 標本庫に登録しました’;
+btn.disabled = true;
+renderArchive();
+}
+
+function deleteMonster(specimen) {
+const archive = JSON.parse(localStorage.getItem(‘ihyli_archive’) || ‘[]’);
+const filtered = archive.filter(m => m.specimen !== specimen);
+localStorage.setItem(‘ihyli_archive’, JSON.stringify(filtered));
+renderArchive();
+}
+
+function renderArchive() {
+const archive = JSON.parse(localStorage.getItem(‘ihyli_archive’) || ‘[]’);
+const list = document.getElementById(‘archiveList’);
+const count = document.getElementById(‘archiveCount’);
+count.textContent = archive.length > 0 ? `${archive.length} 件` : ‘’;
+if (archive.length === 0) {
+list.innerHTML = ‘<div class="archive-empty">NO SPECIMENS REGISTERED</div>’;
+return;
+}
+list.innerHTML = archive.map(m => `<div class="archive-card"> <div class="archive-card-info"> <div class="archive-card-name">${m.name}</div> <div class="archive-card-meta"> No.${m.specimen} ／ ${m.silhouette} ／ ${m.size} ／ 深度${m.depth}<br> ${m.feature}<br> 能力：${m.ability} </div> <div class="archive-card-wagara">紋様：${m.wagaraName}（${m.wagaraRead}）</div> </div> <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0"> <span class="archive-card-danger">${m.danger}</span> <button class="btn-delete" onclick="deleteMonster(${m.specimen})" title="削除">✕</button> </div> </div>`).join(’’);
+}
+
+// ページ読み込み時に標本庫を表示
+window.addEventListener(‘DOMContentLoaded’, renderArchive);
 
 // 和柄データ（タグでモンスター要素とマッチング）
 const wagara = [
@@ -359,6 +483,16 @@ ${feature}特徴があり、
 
 const selected = selectWagara(motif, feature, ability, silhouette);
 const reason = buildReason(selected, motif, feature, ability);
+
+// 現在のモンスターデータを保持
+currentMonster = { specimen, name, silhouette, motif, color, feature, ability,
+danger: dangerLevel, size: monsterSize, depth: habitat,
+wagaraName: selected.name, wagaraRead: selected.read };
+
+// 保存ボタンをリセット
+const btnSave = document.getElementById(‘btnSave’);
+btnSave.textContent = ‘＋ この標本を標本庫に登録する’;
+btnSave.disabled = false;
 
 const result = document.getElementById(“result”);
 result.classList.remove(“visible”);
